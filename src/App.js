@@ -1,23 +1,34 @@
-import logo from './logo.svg';
 import './App.css';
+import { useAuth } from './Context/AuthContext';
+import { GoogleAuthProvider } from "firebase/auth";
 
 function App() {
+  const { currentUser, signInWithGoogle, logout } = useAuth();
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+
+      {!currentUser
+        ? <button
+          onClick={() =>
+            signInWithGoogle()
+              .then((result) => {
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                console.log("Credential: ", credential);
+                const token = credential.accessToken;
+                console.log("Token: ", token);
+                const user = result.user;
+                console.log("User: ", user);
+              })
+              .catch((error) => {
+                console.log(error.message);
+              })
+          }
         >
-          Learn React
-        </a>
-      </header>
+          Signing in with Google
+        </button>
+        : <button onClick={() => logout()}>Logout</button>}
+
+      <pre>Current user: {JSON.stringify(currentUser, null, 2)}</pre>
     </div>
   );
 }
